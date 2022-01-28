@@ -1,0 +1,24 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb-deployment 
+  labels:
+    app: mongodb
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mongodb # look for this label to match this k8 service
+
+  template:
+    metadata:
+      labels:
+        app: mongodb
+
+    spec:
+      containers:
+      - name: mongodb
+        image: rocky11/mongo
+        ports:
+        - containerPort: 27017

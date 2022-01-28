@@ -1,27 +1,4 @@
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: node # naming the deployment
-  namespace: default
-
-# Specifications to include ports 
-spec:
-  ports:
-    - nodePort: 30001 # a range is 30000-32768
-      port: 3000
-      protocol: TCP
-      targetPort: 3000
-
-
-# let define the selector and label to connect to nginx deployment
-  selector: 
-    app: node # this label connects this service to deployment
-
-# creating Loadbalancer type of deployment
-  type: LoadBalancer
-
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -43,6 +20,10 @@ spec:
     spec:
       containers:
       - name: node
-        image: rocky11/node-app
+        image: rocky11/node-app:new
         ports:
         - containerPort: 3000
+        env:
+        - name: DB_HOST
+          value: mongodb://10.107.114.138:27017/posts
+      #imagePullPolicy: Always

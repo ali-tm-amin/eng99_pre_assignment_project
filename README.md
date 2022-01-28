@@ -95,6 +95,22 @@ Minikube single node Kubernetes cluster setup on AWS EC2 18.04LTS Ubuntu
  <https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#-strong-getting-started-strong> 
  - We need run the yml files from admin mode
 
+### Setting up enviornment variables
+
+- Add thes lines to app deployment yml file 
+
+      ports:
+        - containerPort: 3000
+       env:
+        - name: DB_HOST
+          value: mongodb://<app-ip>:27017/posts
+
+- Get a shell into the Container that is running in your Pod:
+`kubectl exec -it <pod name> -- sh`
+- your shell, view the environment variables:
+`printenv`
+- Copy the ip and added to the env varibale lines you added to yml deployment file
+- refresh the states by applying to yml file then it should bring posts on the browser.
 
 # other K8 commands for local host
 ## install hyperhit and minikube
@@ -155,4 +171,4 @@ kubectl top The kubectl top command returns current CPU and memory usage for a c
 #### Some other useful links
 - [troubleshooting-deployments](https://learnk8s.io/troubleshooting-deployments)
 - [deploying-nodejs-kubernetes](https://learnk8s.io/deploying-nodejs-kubernetes)
-- 
+- [enviornment variable](https://kubernetes.io/docs/tasks/inject-data-application/_print/)
