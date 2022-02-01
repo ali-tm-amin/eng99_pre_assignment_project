@@ -91,7 +91,8 @@ Minikube single node Kubernetes cluster setup on AWS EC2 18.04LTS Ubuntu
 - restart minkube with driver=none
  `minikube start --vm-driver=none`
  
- > Note: minikube meant to work in admin mode- `sudo -i` then `minikube start`- To fast track we have an ami of k8 cluster `ami-08a121049feee27da`- All done#### K8 official doc
+ > Note: minikube meant to work in admin mode- `sudo -i` then `minikube start`- To fast track we have an ami of k8 cluster `ami-08a121049feee27da`- All done
+ #### K8 official doc
  <https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#-strong-getting-started-strong> 
  - We need run the yml files from admin mode
 
@@ -112,6 +113,89 @@ Minikube single node Kubernetes cluster setup on AWS EC2 18.04LTS Ubuntu
 - Copy the ip and added to the env varibale lines you added to yml deployment file
 - refresh the states by applying to yml file then it should bring posts on the browser.
 
+## Persistant Volume (PV) & Persistant Volume Claim (PVC)
+
+**Step 1:** Creating an EBS volume on aws console
+- [More info here](https://kubernetes.io/docs/concepts/storage/volumes/)
+
+      aws ec2 create-volume --availability-zone=eu-west-1a --size=10 --volume-type=gp2
+    
+- Attach it to an ec2 instance
+![](/images/ebs_volume.png)
+
+**Step 2:** Creating yaml files
+
+- Add these lines to node.yml deployment file
+
+        Container: ...  
+            volumeMounts:
+              - name: pv-volume
+                mountPath: /dev/sdf
+        volumes:
+          - name: pv-volume
+            awsElasticBlockStore:
+          # Enter the volume ID below
+              volumeID: vol-072e47f42a4d0c432
+              #volume_id eng99_ali_k8_cluster_ebs
+              fsType: ext4
+            storageClassName: fast
+
+- **StorageClass** yaml file
+- 
+      kind: StorageClass
+      apiVersion: storage.k8s.io/v1
+      metadata:
+        name: pv-sc
+        annotations:
+          storageclass.kubernetes.io/is-default-class: "true"
+      provisioner: kubernetes.io/aws-ebs
+      parameters:
+        type: pvc0001
+        fsType: ext4
+- **Persistent Volume Class** 
+
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: pvc0001
+      spec:
+        accessModes:
+          - ReadWriteMany
+        resources:
+          requests:
+            storage: 5Gi
+        storageClassName: fast
+        volumeName: pv0001
+
+- **Persistent Volume** 
+
+      apiVersion: v1
+      kind: PersistentVolume
+      metadata:
+        name: pv0001
+      spec:
+        capacity:
+          storage: 5Gi
+        accessModes:
+          - ReadWriteMany
+        persistentVolumeReclaimPolicy: Retain
+        storageClassName: fast
+        storageos:
+          # This volume must already exist within StorageOS
+          volumeName: pv0001
+          # volumeNamespace is optional, and specifies the volume scope within
+          # StorageOS.  Set to `default` or leave blank if you are not using
+          # namespaces.
+          #volumeNamespace: default
+          # The filesystem type to create on the volume, if required.
+          fsType: ext4
+**Step 3:** Apply the files
+- `K apply -f k`
+
+
+![](/images/pv_pvc_sc.png)
+
+----------
 # other K8 commands for local host
 ## install hyperhit and minikube
 - For Mac users

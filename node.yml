@@ -19,11 +19,26 @@ spec:
 
     spec:
       containers:
-      - name: node
-        image: rocky11/node-app:new
-        ports:
-        - containerPort: 3000
-        env:
-        - name: DB_HOST
-          value: mongodb://10.107.114.138:27017/posts
-      #imagePullPolicy: Always
+        - name: node
+          image: rocky11/node-app:new
+          ports:
+            - containerPort: 3000
+          volumeMounts:
+            - name: pv-volume
+              mountPath: /dev/sdf
+      volumes:
+        - name: pv-volume
+          awsElasticBlockStore:
+        # Enter the volume ID below
+            volumeID: vol-072e47f42a4d0c432
+            #volume_id eng99_ali_k8_cluster_ebs
+            fsType: ext4
+          storageClassName: fast
+
+
+          
+
+          env:
+          - name: DB_HOST
+            value: mongodb://10.107.114.138:27017/posts
+    #imagePullPolicy: Always
