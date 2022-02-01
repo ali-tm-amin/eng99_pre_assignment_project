@@ -1,6 +1,6 @@
 # eng99_pre_assignment_project
 
-![diagram](/images/pre-assignment-k8-cluster-diagram.png)
+![diagram](/images/project_diagram.png)
 
 ## Project summary
 
